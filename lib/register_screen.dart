@@ -1,53 +1,74 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:trendtrove/login_screen.dart';
+import 'package:trendtrove/pages/firebase_auth_implemenatation/firebase_auth_services.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
+
 TextStyle myStyle = TextStyle(fontSize: 25);
-class _RegisterScreenState extends State<RegisterScreen>{
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  bool _isSigning = false;
+  final FirebaseAuthService _auth = FirebaseAuthService();
+
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
   late String username;
   late String password;
   late String email;
-  late String conpassword;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final usernameField = TextField(
-      onChanged: (val){
+      controller: _usernameController,
+      onChanged: (val) {
         setState(() {
           username = val;
         });
       },
       style: myStyle,
       decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(10),
-          hintText: "Username",
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(32.0)
-          )
+        contentPadding: EdgeInsets.all(10),
+        hintText: "Username",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(32.0),
+        ),
       ),
     );
 
     final emailField = TextField(
-      onChanged: (val){
+      controller: _emailController,
+      onChanged: (val) {
         setState(() {
           email = val;
         });
       },
       style: myStyle,
       decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(10),
-          hintText: "Email",
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(32.0)
-          )
+        contentPadding: EdgeInsets.all(10),
+        hintText: "Email",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(32.0),
+        ),
       ),
     );
 
     final passwordField = TextField(
-      onChanged: (val){
+      controller: _passwordController,
+      onChanged: (val) {
         setState(() {
           password = val;
         });
@@ -55,93 +76,163 @@ class _RegisterScreenState extends State<RegisterScreen>{
       obscureText: true,
       style: myStyle,
       decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(10),
-          hintText: "Password",
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(32.0)
-          )
-      ),
-    );
-
-    final conpasswordField = TextField(
-      onChanged: (val){
-        setState(() {
-          conpassword = val;
-        });
-      },
-      obscureText: true,
-      style: myStyle,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(10),
-          hintText: "Conform Password",
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(32.0)
-          )
+        contentPadding: EdgeInsets.all(10),
+        hintText: "Password",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(32.0),
+        ),
       ),
     );
 
     final mySigninButton = Material(
-        elevation: 5.0,
-        borderRadius: BorderRadius.circular(30.0),
-        color: Colors.deepPurple,
-        child: MaterialButton(
-          minWidth: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.all(20),
-          onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> LoginScreen()));
-          },
-          child: Text('Sign In', style: TextStyle(color: Colors.white,fontSize: 25),),
-        )
+      elevation: 5.0,
+      borderRadius: BorderRadius.circular(30.0),
+      color: Colors.deepPurple,
+      child: MaterialButton(
+        minWidth: MediaQuery
+            .of(context)
+            .size
+            .width,
+        padding: EdgeInsets.all(20),
+        onPressed: () {
+          registerScreen(); // assuming register_screen is a function you want to call on tap
+
+          // Navigator.pushReplacement(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => LoginScreen()),
+          // );
+        },
+        child: Text(
+          'Sign In',
+          style: TextStyle(color: Colors.white, fontSize: 25),
+        ),
+      ),
     );
+
     return Scaffold(
       body: Center(
         child: Container(
           decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                colors: [
-                  Colors.deepPurple,
-                  Colors.red,
-                ],
-              )
+            color: Colors.white,
           ),
           child: Padding(
-              padding: EdgeInsets.all(20),
-              child: ListView(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    //crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 10),
-                      Icon(Icons.supervised_user_circle, size: 100,),
-                      SizedBox(height: 150),
-                      usernameField,
-                      SizedBox(height: 10),
-                      emailField,
-                      SizedBox(height: 10),
-                      passwordField,
-                      SizedBox(height: 10),
-                      conpasswordField,
-                      SizedBox(height: 10,),
-                      mySigninButton,
-                      SizedBox(height: 10,),
-                      Text('Already Have an Account', style: TextStyle(color: Colors.black,fontSize: 20),),
-                      GestureDetector(
-                          onTap: (){
-                            Navigator.pushReplacement(context, MaterialPageRoute(
-                                builder: (context) => LoginScreen()));
-                          },
-                          child: Text('Login', style: TextStyle(color: Colors.deepOrange,fontSize: 25),))
-                    ],
-                  ),
-                ],
-              )
+            padding: EdgeInsets.all(20),
+            child: ListView(
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 0),
+                    Image.asset(
+                      'assets/images/tredfin.jpg',
+                      width: 500,
+                      height: 50,
+                    ),
+                    Image.asset(
+                      'assets/images/womanworking.jpg',
+                      width: 400,
+                      height: 200,
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Register Now',
+                      style: TextStyle(
+                          fontSize: 25, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Please fill the details and create an account',
+                      style: TextStyle(fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                    SizedBox(height: 30),
+                    usernameField,
+                    SizedBox(height: 20),
+                    emailField,
+                    SizedBox(height: 20),
+                    passwordField,
+                    SizedBox(height: 20),
+                    mySigninButton,
+                    SizedBox(height: 20),
+                    Text(
+                      'Already Have an Account',
+                      style: TextStyle(color: Colors.black, fontSize: 25),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                            context, MaterialPageRoute(builder: (context) =>
+                            LoginScreen()));
+                      },
+                      child: Text(
+                        'Login',
+                        style: TextStyle(color: Colors.green, fontSize: 25),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
-
     );
+  }
+
+
+  void registerScreen() async {
+    String username = _usernameController.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    // Assuming _auth.signUpWithEmailandPassword returns a User object on successful registration
+    User? user = await _auth.signUpWithEmailandPassword(email, password);
+
+    if (user != null) {
+      // Successful registration
+      print("User is created");
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Success"),
+            content: Text("User registered successfully."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // Unsuccessful registration
+      print("Error Occurred");
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Error"),
+            content: Text("Please fill in all fields correctly."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }

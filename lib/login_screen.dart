@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:trendtrove/auth_services.dart';
 import 'package:trendtrove/home_screen.dart';
+import 'package:trendtrove/pages/firebase_auth_implemenatation/firebase_auth_services.dart';
+import 'package:trendtrove/pages/shop_page.dart';
 import 'package:trendtrove/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -8,31 +12,45 @@ class LoginScreen extends StatefulWidget {
   _LoginScreenState createState() => _LoginScreenState();
 }
 TextStyle myStyle = TextStyle(fontSize: 25);
-class _LoginScreenState extends State<LoginScreen>{
-  late String username;
+class _LoginScreenState extends State<LoginScreen> {
+  bool _isSigning = false;
+  final FirebaseAuthService _auth = FirebaseAuthService();
+  late String email;
   late String password;
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final usernameField = TextField(
-      onChanged: (val){
+    final emailnameField = TextField(
+      controller: _emailController,
+      onChanged: (val) {
         setState(() {
-          username = val;
+          email = val;
         });
       },
       style: myStyle,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.all(10),
-          hintText: "Username",
+          hintText: "Email",
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(32.0)
           )
       ),
     );
-    
+
 
     final passwordField = TextField(
-      onChanged: (val){
+      controller: _passwordController,
+      onChanged: (val) {
         setState(() {
           password = val;
         });
@@ -53,66 +71,159 @@ class _LoginScreenState extends State<LoginScreen>{
         borderRadius: BorderRadius.circular(30.0),
         color: Colors.deepPurple,
         child: MaterialButton(
-          minWidth: MediaQuery.of(context).size.width,
+          minWidth: MediaQuery
+              .of(context)
+              .size
+              .width,
           padding: EdgeInsets.all(20),
           onPressed: () {
-            if(username == "Abhaya" && password =="pass123") {
-              Navigator.pushReplacement(context, MaterialPageRoute(
-                  builder: (context) => HomeScreen()));
-            }else{
-              print("Login Failed");
-            }
-            },
-          child: Text('Login', style: TextStyle(color: Colors.white,fontSize: 25),),
+            loginScreen();
+          },
+          child: Text(
+            'Login', style: TextStyle(color: Colors.white, fontSize: 25),),
         )
     );
     return Scaffold(
       body: Center(
         child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [
-                Colors.deepPurple,
-                Colors.red,
-              ],
-            )
-          ),
+          color: Colors.transparent,
           child: Padding(
-              padding: EdgeInsets.all(20),
-              child: ListView(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    //crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 10),
-                      Icon(Icons.supervised_user_circle, size: 100,),
-                      SizedBox(height: 150),
-                      usernameField,
-                      SizedBox(height: 10),
-                      passwordField,
-                      SizedBox(height: 10,),
-                      mySigninButton,
-                      SizedBox(height: 10,),
-                      Icon(FontAwesomeIcons.google),
-                      SizedBox(height: 100,),
-                      Text("Don't Have Account?", style: TextStyle(color: Colors.black,fontSize: 15),),
-                      GestureDetector(
-                        onTap: (){
-                           Navigator.pushReplacement(context, MaterialPageRoute(
-                              builder: (context) => RegisterScreen()));
-                        },
-                          child: Text('Sign Up', style: TextStyle(color: Colors.deepOrange,fontSize: 20),))
-                    ],
-                  ),
-                ],
-              )
+            padding: EdgeInsets.all(20),
+            child: ListView(
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/tredfin.jpg',
+                      width: 500,
+                      height: 50,
+                    ),
+
+                    Image.asset(
+                      'assets/images/tt.jpg',
+                      width: 400,
+                      height: 300,
+                    ),
+
+
+                    SizedBox(height: 10),
+                    // Add space between images
+                    Text(
+                      'Log In Now',
+                      style: TextStyle(
+                          fontSize: 25, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20),
+                    // Add space between text and additional text
+                    Text(
+                      'Please Log in to continue using our app',
+                      style: TextStyle(fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                    SizedBox(height: 30),
+                    emailnameField,
+                    SizedBox(height: 20),
+                    passwordField,
+                    SizedBox(height: 20,),
+                    mySigninButton,
+                    SizedBox(height: 20,),
+                    GestureDetector(
+                      onTap: () {
+                        // Add your login with Google logic here
+                        // For example, you might want to call a function to handle the Google login.
+                        signInWithGoogle(context);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(FontAwesomeIcons.google),
+                          SizedBox(width: 20),
+                          Text(
+                            "Login with Google",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 20,),
+                    Text(
+                      "Don't Have Account?",
+                      style: TextStyle(color: Colors.black, fontSize: 20),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(context, MaterialPageRoute(
+                            builder: (context) => RegisterScreen()));
+                      },
+                      child: Text(
+                        'Sign Up',
+                        style: TextStyle(color: Colors.green, fontSize: 20),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
-
     );
+  }
+
+
+  void loginScreen() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.signInWithEmailandPassword(email, password);
+
+    if (user != null) {
+      // Successful sign-in
+      print("User is signed in");
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Success"),
+            content: Text("User signed in successfully."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // Unsuccessful sign-in
+      print("Error Occurred");
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Error"),
+            content: Text("Wrong email or password. Please try again."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }

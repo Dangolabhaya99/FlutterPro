@@ -22,7 +22,22 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+
 android {
+
+
+        defaultConfig {
+
+            multiDexEnabled true
+
+    }
+
+
+
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
     namespace "com.example.trendtrove"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
@@ -45,7 +60,7 @@ android {
         applicationId "com.example.trendtrove"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 20
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -64,4 +79,6 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation 'com.android.support:multidex:1.0.3'
+}
