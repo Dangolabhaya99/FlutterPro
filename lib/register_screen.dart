@@ -187,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String password = _passwordController.text;
 
     // Assuming _auth.signUpWithEmailandPassword returns a User object on successful registration
-    User? user = await _auth.signUpWithEmailandPassword(email, password);
+    User? user = await _auth.signUpWithEmailandPassword(email, password, username);
 
     if (user != null) {
       // Successful registration

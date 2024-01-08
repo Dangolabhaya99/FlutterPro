@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trendtrove/components/shoe_tile.dart';
@@ -66,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: (index) => navigatorBottomBar(index),
       ),
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Remove back button
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true, // Center the title
@@ -78,11 +80,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+
       body: _pages[_selectedIndex],
     );
   }
 }
-
 class ShopPage extends StatefulWidget {
   const ShopPage({Key? key}) : super(key: key);
 
@@ -93,7 +95,6 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage> {
   void addShoeToCart(Shoe shoe) {
     Provider.of<Cart>(context, listen: false).addItemToCart(shoe);
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -102,7 +103,6 @@ class _ShopPageState extends State<ShopPage> {
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<Cart>(
@@ -114,24 +114,8 @@ class _ShopPageState extends State<ShopPage> {
                 padding: const EdgeInsets.all(25),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search',
-                          hintStyle: TextStyle(color: Colors.black),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(28.0),
-                          ),
-                          prefixIcon: const Icon(
-                            Icons.search,
-                            color: Colors.black,
-                          ),
-                        ),
-                        style: const TextStyle(color: Colors.black),
-                      ),
-                    ),
-                  ],
+
+
                 ),
               ),
               const Padding(
@@ -141,37 +125,18 @@ class _ShopPageState extends State<ShopPage> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Hot Picks',
+                      'Buy Shoes',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 24,
+                        fontSize: 30,
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 10),
-              SizedBox(
-                height: 500, // Adjust the height based on your design
-                child: ListView.builder(
-                  itemCount: value.getShoeList().length,
-                  scrollDirection: Axis.horizontal, // Set the scroll direction to horizontal
-                  itemBuilder: (context, index) {
-                    Shoe shoe = value.getShoeList()[index];
-                    return ShoeTile(
-                      shoe: shoe,
-                      onTap: () => addShoeToCart(shoe),
-                    );
-                  },
-                ),
-              ),
-              const Padding(
-                padding:
-                EdgeInsets.only(top: 25.0, left: 25, right: 25, bottom: 25),
-                child: Divider(
-                  color: Colors.white,
-                ),
-              )
+              const ShoeTiles(),
+
             ],
           ),
         ),

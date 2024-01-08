@@ -1,91 +1,152 @@
 import 'package:flutter/material.dart';
-import 'package:trendtrove/models/shoe.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 
-class ShoeTile extends StatelessWidget {
-  final Shoe shoe;
-  final void Function()? onTap;
+import '../models/cart.dart';
+import '../models/shoe.dart';
 
-  ShoeTile({Key? key, required this.shoe, required this.onTap}) : super(key: key);
+class ShoeTiles extends StatefulWidget {
+  const ShoeTiles({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  CarTilesState createState() => CarTilesState();
+}
+
+Widget shoeTiles(BuildContext context) {
+  return StreamBuilder(
+    stream: FirebaseFirestore.instance.collection('shoe-details').snapshots(),
+    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator();
+      } else if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      } else {
+        var data = snapshot.data!.docs;
+        return ListView.builder(
+          scrollDirection: Axis.horizontal, // Set the scroll direction to horizontal
+          itemCount: data.length,
+          itemBuilder: (BuildContext context, int index) {
+            return shoeTileItem(context, data[index]);
+          },
+        );
+      }
+    },
+  );
+}
+
+Widget shoeTileItem(
+    BuildContext context, QueryDocumentSnapshot<Object?> shoeData) {
+  String imageUrl = shoeData.get('img');
+  String shoename = shoeData.get('name');
+  String shoedetails = shoeData.get('details');
+  String price = shoeData.get('price');
+
+  return GestureDetector(
+    onTap: () {
+      // Create a Shoe instance from the data
+      Shoe selectedShoe = Shoe(
+        name: shoename,
+        details: shoedetails,
+        price: price,
+        imagePath: imageUrl,
+      );
+
+      // Add the selected shoe to the cart
+      Provider.of<Cart>(context, listen: false).addItemToCart(selectedShoe);
+
+      // Show a confirmation message (optional)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+
+          content: Text('$shoename added to cart'),
+        ),
+      );
+    },
+    child: Container(
       margin: EdgeInsets.only(left: 25),
       width: 200,
-      height: 300, // Adjust the height of the container
-
+      height: 300,
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              shoe.imagePath,
-              height: 280, // Adjust the height of the image
+            child: Image.network(
+              imageUrl,
+              height: 250,
               width: double.infinity,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
             ),
           ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25.0),
-            child: Text(
-              shoe.description,
-              style: TextStyle(color: Colors.black),
-            ),
+          Text(
+            shoedetails,
+            style: TextStyle(color: Colors.black),
           ),
-
-          Padding(
-            padding: const EdgeInsets.only(left: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      shoe.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      '\Rs' + shoe.price,
-                      style: const TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-
-                GestureDetector(
-                  onTap: onTap,
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: const BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        bottomRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 30),
+                  Text(
+                    shoename,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '\Rs $price',
+                    style: const TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+
+              Container(
+                padding: const EdgeInsets.all(15),
+                decoration: const BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
+                  ),
                 ),
-              ],
-            ),
+
+
+                child: const Icon(
+
+
+                  Icons.add,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ],
+      ),
+    ),
+  );
+}
+
+
+
+
+class CarTilesState extends State<ShoeTiles> {
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: SizedBox(
+        height: 650,
+        // Adjust the height as needed
+        child: shoeTiles(context),
       ),
     );
   }

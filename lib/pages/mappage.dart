@@ -59,7 +59,10 @@ class MapSampleState extends State<MapSample> {
               ? GoogleMap(
             initialCameraPosition: _kGooglePlex,
             onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
+              if (_controller.isCompleted) {
+                _controller.complete(controller);
+                _loadMapStyle(); // Load and apply map style when the map is created
+              }
             },
             onTap: (LatLng location) {
               setState(() {
@@ -87,7 +90,7 @@ class MapSampleState extends State<MapSample> {
                 onPressed: () {
                   Navigator.pop(context, selectedLocation);
                 },
-                child: Text("Choose"),
+                child: Text("Choose Location"),
               ),
             ),
         ],
@@ -98,6 +101,13 @@ class MapSampleState extends State<MapSample> {
   var mapthemedata;
 
   Future<void> _loadMapStyle() async {
-    mapthemedata = await rootBundle.loadString('assets/raw/maptheme.json');
+    final String mapStyleJson = await rootBundle.loadString('assets/raw/maptheme.json');
+    final GoogleMapController controller = await _controller.future;
+
+    // Check if controller is not null before applying the map style
+    if (controller != null) {
+      controller.setMapStyle(mapStyleJson);
+    }
   }
+
 }

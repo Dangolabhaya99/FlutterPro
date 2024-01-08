@@ -6,8 +6,6 @@ import 'package:trendtrove/pages/shop_page.dart';
 import 'package:trendtrove/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
-
 import 'home_screen.dart';
 import 'login_screen.dart';
 
@@ -34,38 +32,8 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
+        debugShowCheckedModeBanner: false, // Remove debug banner
         home: initialUser != null ? SplashScreen() : LoginScreen(),
-      ),
-    );
-  }
-}
-
-class LoginApp extends StatelessWidget {
-  LoginApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => Cart(),
-      builder: (context, child) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: SplashScreen(),
-      ),
-    );
-  }
-}
-
-
-
-class LoginScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Login Screen'),
-      ),
-      body: Center(
-        child: Text('Login Screen Content'),
       ),
     );
   }

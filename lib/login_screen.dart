@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:trendtrove/auth_services.dart';
 import 'package:trendtrove/home_screen.dart';
+import 'package:trendtrove/pages/admin.dart';
 import 'package:trendtrove/pages/firebase_auth_implemenatation/firebase_auth_services.dart';
 import 'package:trendtrove/pages/shop_page.dart';
 import 'package:trendtrove/register_screen.dart';
@@ -178,35 +179,62 @@ class _LoginScreenState extends State<LoginScreen> {
     String email = _emailController.text;
     String password = _passwordController.text;
 
-    User? user = await _auth.signInWithEmailandPassword(email, password);
-
-    if (user != null) {
-      // Successful sign-in
-      print("User is signed in");
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Success"),
-            content: Text("User signed in successfully."),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                  );
-                },
-                child: Text("OK"),
-              ),
-            ],
-          );
-        },
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-    } else {
+
+      User? user = userCredential.user;
+
+      if (user != null) {
+        // Successful sign-in
+
+        // Check for admin credentials
+        if (email == "admin@gmail.com") {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Admin Login Successful"),
+                content: Text("You are now logged in as an admin."),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AdminPage()));
+        } else {
+          // User login successful
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("User Login Successful"),
+                content: Text("You are now logged in."),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        }
+      }
+    } catch (e) {
       // Unsuccessful sign-in
-      print("Error Occurred");
+      print("Error Occurred: $e");
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -225,5 +253,4 @@ class _LoginScreenState extends State<LoginScreen> {
         },
       );
     }
-  }
-}
+  }}
